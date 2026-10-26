@@ -2,7 +2,7 @@
 
 An interactive, browser-based simulation of a Local Area Network (LAN) operating on the IEEE 802.5 Token Ring protocol. This application models token passing, frame transmission, node addressing, fault detection, and connection recovery in real time using HTML5 Canvas and vanilla JavaScript.
 
-Developed as an academic school project during my 2nd year of college for computer networking and data communications coursework, and featured on my portfolio at [https://ardg.vercel.app/](https://ardg.vercel.app/).
+Developed as an academic school project during my 2nd year of college for basic networking, and featured on my portfolio at [https://ardg.vercel.app/](https://ardg.vercel.app/).
 
 ---
 
