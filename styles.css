@@ -1,0 +1,911 @@
+/* ==========================================================================
+   Base Styles and Reset
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Press Start 2P', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('images/retro.png') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    color: #fff;
+    overflow: hidden;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   Topology Background and Canvas
+   ========================================================================== */
+.topology-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+h1 {
+    position: absolute;
+    top: 30px;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #ff00ff;
+    text-shadow: 
+        3px 3px 0 #00ff00,
+        -3px -3px 0 #00ff00,
+        3px -3px 0 #00ff00,
+        -3px 3px 0 #00ff00;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+#canvas {
+    width: 90vw;
+    height: 85vh;
+    border: 4px solid #ff00ff;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    box-shadow: 
+        0 0 20px #ff00ff,
+        inset 0 0 20px #ff00ff;
+    backdrop-filter: blur(5px);
+    cursor: pointer;
+}
+
+#canvas:hover {
+    box-shadow: 
+        0 0 30px #ff00ff,
+        inset 0 0 30px #ff00ff;
+}
+
+/* ==========================================================================
+   Status Messages
+   ========================================================================== */
+.status {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 25px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #00ff00;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #00ff00;
+    text-shadow: 2px 2px 0 #000;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    max-width: 500px;
+    text-align: center;
+    z-index: 2;
+    font-family: 'Press Start 2P', monospace;
+}
+
+.status.success {
+    background: rgba(0, 100, 50, 0.9);
+    border-color: rgba(0, 255, 127, 0.4);
+    color: #00ff7f;
+    box-shadow: 0 0 20px rgba(0, 255, 127, 0.3);
+}
+
+.status.warning {
+    background: rgba(100, 50, 0, 0.9);
+    border-color: rgba(255, 191, 0, 0.4);
+    color: #ffbf00;
+    box-shadow: 0 0 20px rgba(255, 191, 0, 0.3);
+}
+
+.status.error {
+    background: rgba(100, 20, 20, 0.9);
+    border-color: rgba(255, 69, 69, 0.4);
+    color: #ff4545;
+    box-shadow: 0 0 20px rgba(255, 69, 69, 0.3);
+}
+
+/* ==========================================================================
+   Control Panel
+   ========================================================================== */
+.control-panel {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 400px;
+    max-height: 80vh;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #ff00ff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.panel-header {
+    background: #000;
+    padding: 20px; 
+    text-align: center;
+    border-bottom: 3px solid #ff00ff;
+    position: relative;
+}
+
+.panel-header h2 {
+    font-size: 1.5rem;
+    color: #00ff00;
+    margin: 0;
+    text-shadow: 2px 2px 0 #000;
+    font-family: 'Press Start 2P', monospace;
+}
+
+.panel-toggle {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.panel-toggle::before {
+    content: '▼';
+    color: #00ff00;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.panel-toggle:hover {
+    opacity: 1;
+}
+
+.panel-content {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(80vh - 80px);
+}
+
+/* ==========================================================================
+   Control Panel Sections
+   ========================================================================== */
+.control-section {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(0, 50, 100, 0.3);
+    border-radius: 15px;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.control-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #00d4ff;
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+/* ==========================================================================
+   Buttons and Interactive Elements
+   ========================================================================== */
+.circular-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #000;
+    color: #00ff00;
+    border: 3px solid #00ff00;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Press Start 2P', monospace;
+    margin-bottom: 10px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.button-group .circular-btn {
+    margin-bottom: 0;
+}
+
+.button-group .break-btn {
+    flex: 1;
+}
+
+.button-group .restart-btn {
+    width: auto;
+    min-width: 120px;
+    padding: 12px 15px;
+}
+
+.circular-btn:last-child {
+    margin-bottom: 0;
+}
+
+.circular-btn:hover {
+    background: #00ff00;
+    color: #000;
+    box-shadow: 0 0 20px #00ff00;
+}
+
+.circular-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+.add-btn {
+    border-color: #00ff00;
+    color: #00ff00;
+}
+
+.add-btn:hover {
+    background: #00ff00;
+    color: #000;
+}
+
+.break-btn {
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
+.break-btn:hover {
+    background: #ff0000;
+    color: #000;
+    box-shadow: 0 0 20px #ff0000;
+}
+
+.restart-btn {
+    border-color: #00d4ff;
+    color: #00d4ff;
+}
+
+.restart-btn:hover {
+    background: #00d4ff;
+    color: #000;
+    box-shadow: 0 0 20px #00d4ff;
+}
+
+.send-btn {
+    border-color: #ff00ff;
+    color: #ff00ff;
+}
+
+.send-btn:hover {
+    background: #ff00ff;
+    color: #000;
+}
+
+/* ==========================================================================
+   Network Status Buttons
+   ========================================================================== */
+.power-button {
+    padding: 8px;
+    font-size: 11px;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    background: #000;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.power-button:hover {
+    background: #00ff00;
+    color: #000;
+    box-shadow: 0 0 15px #00ff00;
+}
+
+.power-button.power-off {
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
+.power-button.power-off:hover {
+    background: #ff0000;
+    color: #000;
+    box-shadow: 0 0 15px #ff0000;
+}
+
+.remove-button {
+    padding: 8px;
+    font-size: 11px;
+    min-width: 32px;
+    height: 32px;
+    background: #000;
+    border: 2px solid #ff0000;
+    border-radius: 4px;
+    color: #ff0000;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-button:hover {
+    background: #ff0000;
+    color: #000;
+    box-shadow: 0 0 15px #ff0000;
+}
+
+/* ==========================================================================
+   Form Elements
+   ========================================================================== */
+select {
+    padding: 10px 15px;
+    border: 3px solid #00ff00;
+    border-radius: 5px;
+    font-size: 14px;
+    background: #000;
+    color: #00ff00;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-family: 'Press Start 2P', monospace;
+}
+
+select:focus {
+    outline: none;
+    border-color: #ff00ff;
+    box-shadow: 0 0 10px #ff00ff;
+}
+
+label {
+    font-weight: 600;
+    color: #00ff00;
+    font-size: 14px;
+    margin-bottom: 5px;
+    font-family: 'Press Start 2P', monospace;
+}
+
+/* ==========================================================================
+   Node List and Items
+   ========================================================================== */
+.node-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.node-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: #000;
+    border-radius: 5px;
+    border: 2px solid #00ff00;
+    transition: all 0.3s ease;
+}
+
+.node-item:hover {
+    border-color: #ff00ff;
+    box-shadow: 0 0 15px #ff00ff;
+}
+
+.ip-address-text {
+    font-size: 10px;
+}
+
+.node-status {
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.node-status.on {
+    color: #00ff00;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.node-status.off {
+    color: #ff0000;
+    text-shadow: 2px 2px 0 #000;
+}
+
+/* ==========================================================================
+   Ring Status
+   ========================================================================== */
+.ring-status {
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.ring-status.success {
+    background: rgba(0, 100, 50, 0.3);
+    color: #00ff7f;
+}
+
+.ring-status.warning {
+    background: rgba(100, 50, 0, 0.3);
+    color: #ffbf00;
+}
+
+.ring-status.error {
+    background: rgba(100, 20, 20, 0.3);
+    color: #ff4545;
+}
+
+/* ==========================================================================
+   Activity Log
+   ========================================================================== */
+.activity-log {
+    position: fixed;
+    top: 100px;
+    left: 20px;
+    transform: none;
+    width: 300px;
+    max-height: 45vh;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #ff00ff;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: 
+        0 0 20px #ff00ff,
+        inset 0 0 20px #ff00ff;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Press Start 2P', monospace;
+}
+
+.log-header {
+    background: #000;
+    padding: 15px;
+    text-align: center;
+    border-bottom: 3px solid #ff00ff;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.log-header h2 {
+    font-size: 1.2rem;
+    color: #00ff00;
+    margin: 0;
+    text-shadow: 
+        2px 2px 0 #000,
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000;
+    font-family: 'Press Start 2P', monospace;
+    letter-spacing: 1px;
+}
+
+.clear-log-btn {
+    padding: 8px 16px;
+    font-size: 10px;
+    background: #000;
+    border: 2px solid #ff0000;
+    border-radius: 0;
+    color: #ff0000;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Press Start 2P', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.clear-log-btn:hover {
+    background: #ff0000;
+    color: #000;
+    box-shadow: 0 0 20px #ff0000;
+    transform: translateY(-2px);
+}
+
+.log-content {
+    padding: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.9),
+        rgba(0, 0, 0, 0.9) 2px,
+        rgba(0, 0, 0, 0.95) 2px,
+        rgba(0, 0, 0, 0.95) 4px
+    );
+}
+
+.log-entry {
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    border-left: 4px solid #00ff00;
+    border-radius: 0;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #fff;
+    animation: fadeIn 0.3s ease;
+    text-shadow: 2px 2px 0 #000;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.log-entry.success {
+    border-left-color: #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.log-entry.warning {
+    border-left-color: #ffbf00;
+    box-shadow: 0 0 10px rgba(255, 191, 0, 0.3);
+}
+
+.log-entry.error {
+    border-left-color: #ff0000;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.log-entry .timestamp {
+    font-size: 8px;
+    color: #00ff00;
+    margin-bottom: 8px;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.log-entry .message {
+    color: #fff;
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   Network Statistics
+   ========================================================================== */
+.network-stats {
+    position: fixed;
+    top: calc(60px + 45vh + 60px);
+    left: 20px;
+    transform: none;
+    width: 300px;
+    max-height: 30vh;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #00ff00;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow:
+        0 0 20px #00ff00,
+        inset 0 0 20px #00ff00;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Press Start 2P', monospace;
+}
+
+.stats-header {
+    background: #000;
+    padding: 15px;
+    text-align: center;
+    border-bottom: 3px solid #00ff00;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stats-header h2 {
+    font-size: 1.2rem;
+    color: #ff00ff;
+    margin: 0;
+    text-shadow:
+        2px 2px 0 #000,
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000;
+    font-family: 'Press Start 2P', monospace;
+    letter-spacing: 1px;
+}
+
+.stats-content {
+    padding: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.9),
+        rgba(0, 0, 0, 0.9) 2px,
+        rgba(0, 0, 0, 0.95) 2px,
+        rgba(0, 0, 0, 0.95) 4px
+    );
+    color: #00ff00;
+    font-size: 10px;
+    text-shadow: 1px 1px 0 #000;
+}
+
+/* ==========================================================================
+   Instructions Button and Modal
+   ========================================================================== */
+.instructions-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 100;
+    padding: 12px 20px;
+    font-size: 14px;
+    width: auto;
+    background: #000;
+    border: 3px solid #00ff00;
+    color: #00ff00;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.instructions-btn:hover {
+    background: #00ff00;
+    color: #000;
+    box-shadow: 0 0 25px #00ff00;
+    transform: translateY(-2px);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px);
+    animation: fadeInModal 0.3s ease-out;
+}
+
+.modal-content {
+    background: rgba(0, 0, 0, 0.95);
+    margin: 5% auto;
+    padding: 30px;
+    border: 3px solid #ff00ff;
+    border-radius: 0;
+    width: 80%;
+    max-width: 800px;
+    box-shadow: 0 0 40px #ff00ff, inset 0 0 20px #ff00ff;
+    animation: zoomIn 0.3s ease-out;
+    font-family: 'Press Start 2P', monospace;
+    color: #00ff00;
+    line-height: 1.6;
+    overflow-y: auto;
+    max-height: 90vh;
+}
+
+.modal-body {
+    padding: 20px;
+    color: #00ff00;
+    line-height: 1.6;
+}
+
+.modal-body h3 {
+    color: #ff00ff;
+    margin: 25px 0 15px 0;
+    font-size: 1.4rem;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.modal-body h4 {
+    color: #00d4ff;
+    margin: 20px 0 10px 0;
+    font-size: 1.1rem;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.instruction-section {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.instruction-section ul, 
+.instruction-section ol {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.instruction-section li {
+    margin: 8px 0;
+    font-size: 0.9rem;
+}
+
+.instruction-section strong {
+    color: #ff00ff;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.modal-body p {
+    margin: 15px 0;
+    font-size: 0.9rem;
+}
+
+.modal-body ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.modal-body ul li {
+    margin: 10px 0;
+    padding-left: 20px;
+    position: relative;
+}
+
+.modal-body ul li:before {
+    content: "•";
+    color: #ff00ff;
+    position: absolute;
+    left: 0;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.modal-body ol {
+    padding-left: 20px;
+}
+
+.modal-body ol li {
+    margin: 10px 0;
+    font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px);
+        filter: blur(5px);
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+@media (max-width: 1024px) {
+    .control-panel {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        left: 20px;
+        top: auto;
+        transform: none;
+        width: auto;
+        max-height: 40vh;
+        border-radius: 20px 20px 0 0;
+    }
+    
+    h1 {
+        font-size: 2.2rem;
+        top: 20px;
+    }
+    
+    #canvas {
+        width: 95vw;
+        height: 75vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .control-panel {
+        max-height: 50vh;
+        width: 95vw;
+        margin: 0 auto;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    #canvas {
+        width: 98vw;
+        height: 65vh;
+    }
+}
+
+/* ==========================================================================
+   ARDG Logo
+   ========================================================================== */
+.ardg-logo {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 80px;
+    height: auto;
+    z-index: 50;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.ardg-logo:hover {
+    opacity: 1;
+}
+
+@media (max-width: 1024px) {
+    .ardg-logo {
+        width: 60px;
+        bottom: 10px;
+        right: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .ardg-logo {
+        width: 50px;
+        bottom: 5px;
+        right: 5px;
+    }
+}

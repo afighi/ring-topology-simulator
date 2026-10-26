@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Ring Topology Simulator</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="emblem.ico">
+    <link rel="shortcut icon" href="emblem.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- MODIFIED: REMOVED MAIN CONTAINER, TOPOLOGY NOW USES FULL BACKGROUND -->
+    <div class="topology-background">
+        <h1>Token Ring Topology Simulator</h1>
+        <canvas id="canvas"></canvas>
+        <div id="status" class="status">Status: Ready</div>
+    </div>
+    
+    <!-- Activity Log Panel -->
+    <div class="activity-log">
+        <div class="log-header">
+            <h2>ACTIVITY LOG</h2>
+            <button class="clear-log-btn">CLEAR</button>
+        </div>
+        <div class="log-content" id="activityLog">
+            <!-- Log entries will be added here -->
+        </div>
+    </div>
+    
+    <!-- Network Statistics Panel -->
+    <div class="network-stats">
+        <div class="stats-header">
+            <h2>NETWORK STATISTICS</h2>
+        </div>
+        <div class="stats-content" id="networkStats">
+            <!-- Statistics will be populated here -->
+            <p><strong>Total PCs:</strong> <span id="totalPcs">0</span></p>
+            <p><strong>Online PCs:</strong> <span id="onlinePcs">0</span></p>
+            <p><strong>Offline Active PCs:</strong> <span id="offlineActivePcs">0</span></p>
+            <p><strong>Manually Broken Connections:</strong> <span id="manuallyBrokenConnections">0</span></p>
+            <p><strong>Data Transmissions:</strong> <span id="dataTransmissions">0</span></p>
+            <p><strong>Acknowledgements:</strong> <span id="acknowledgements">0</span></p>
+            <p><strong>Removed PCs:</strong> <span id="removedPcs">0</span></p>
+            <p><strong>Token Status:</strong> <span id="tokenStatus">Free</span></p>
+        </div>
+    </div>
+    
+    <!-- MODIFIED: FLOATING CONTROL PANEL WITH NEW CIRCULAR DESIGN -->
+    <div class="control-panel">
+        <div class="panel-header">
+            <h2>Network Configuration Controls</h2>
+            <div class="panel-toggle"></div>
+        </div>
+        
+        <div class="panel-content">
+            <div class="control-section">
+                <h3>Node Management</h3>
+                <button onclick="addNode()" class="circular-btn add-btn">
+                    <span class="btn-icon">➕</span>
+                    <span class="btn-text">Add Node</span>
+                </button>
+                <div class="button-group">
+                    <button onclick="breakAllConnections()" class="circular-btn break-btn">
+                        <span class="btn-icon">🔌</span>
+                        <span class="btn-text">Break All</span>
+                    </button>
+                    <button onclick="restartConnections()" class="circular-btn restart-btn">
+                        <span class="btn-icon">🔄</span>
+                        <span class="btn-text">Restart All</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>Node Transmission</h3>
+                <div class="control-group">
+                    <label for="sourceNode">Source:</label>
+                    <select id="sourceNode"></select>
+                </div>
+                <div class="control-group">
+                    <label for="destNode">Destination:</label>
+                    <select id="destNode"></select>
+                </div>
+                <button onclick="sendPacket()" class="circular-btn send-btn">
+                    <span class="btn-icon">&#x1F3AE;</span>
+                    <span class="btn-text">Send Node</span>
+                </button>
+            </div>
+            
+            <div class="control-section">
+                <h3>Network Status</h3>
+                <div class="node-list" id="nodeList">
+                    <!-- PC status will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions Button -->
+    <button id="instructionsButton" class="circular-btn instructions-btn">
+        <span class="btn-icon">❓</span>
+        <span class="btn-text">Instructions</span>
+    </button>
+
+    <!-- Instructions Modal -->
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Token Ring Topology Simulation Guide</h2>
+            <div class="modal-body">
+                <h3>What is Token Ring Topology?</h3>
+                <p>A Token Ring network is a type of local area network (LAN) where all devices are connected in a ring. Here's how it works:</p>
+                <ul>
+                    <li>A special data packet called a 'token' circulates around the ring</li>
+                    <li>To send data, a device must first capture the free token</li>
+                    <li>The device attaches its data and the recipient's address to the token</li>
+                    <li>Each device checks if the token is addressed to it</li>
+                    <li>If not addressed to it, the device passes the token to the next device</li>
+                    <li>If addressed to it, the device copies the data and sends an acknowledgment back</li>
+                    <li>The source device then frees the token for others to use</li>
+                </ul>
+
+                <h3>Quick Start Guide</h3>
+                <div class="instruction-section">
+                    <h4>1. Basic Controls</h4>
+                    <ul>
+                        <li><strong>Add PC:</strong> Click "Add Node" to add new PCs (max 12)</li>
+                        <li><strong>Remove PC:</strong> Click the ❌ button next to any PC</li>
+                        <li><strong>Power On/Off:</strong> Click the power button next to any PC</li>
+                        <li><strong>Break Connection:</strong> Click directly on any connection line</li>
+                    </ul>
+                </div>
+
+                <div class="instruction-section">
+                    <h4>2. Sending Data</h4>
+                    <ol>
+                        <li>Select a source PC from the "Source" dropdown</li>
+                        <li>Select a destination PC from the "Destination" dropdown</li>
+                        <li>Click "Send Node" to start the transmission</li>
+                        <li>Watch the token carry the data around the ring</li>
+                    </ol>
+                </div>
+
+                <div class="instruction-section">
+                    <h4>3. Network Management</h4>
+                    <ul>
+                        <li><strong>Break All:</strong> Breaks all connections in the ring</li>
+                        <li><strong>Restart All:</strong> Restores all connections and turns PCs back online</li>
+                        <li><strong>Activity Log:</strong> Shows all network events on the left panel</li>
+                        <li><strong>Network Stats:</strong> Displays real-time network information</li>
+                    </ul>
+                </div>
+
+                <div class="instruction-section">
+                    <h4>4. Important Notes</h4>
+                    <ul>
+                        <li>The ring needs at least 2 PCs to function</li>
+                        <li>Maximum 12 PCs allowed in the ring</li>
+                        <li>All PCs must be online for the ring to work properly</li>
+                        <li>Broken connections prevent data transmission</li>
+                        <li>Use "Restart All" to fix broken connections and offline PCs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+<img src="images/ardg.png" alt="ARDG Logo" class="ardg-logo">
+</html>
